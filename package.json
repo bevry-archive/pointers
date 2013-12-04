@@ -29,7 +29,9 @@
   "maintainers": [
     "Benjamin Lupton <b@lupton.cc> (https://github.com/balupton)"
   ],
-  "contributors": [],
+  "contributors": [
+    "Benjamin Lupton <b@lupton.cc> (https://github.com/balupton)"
+  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/bevry/pointers.git"
@@ -45,7 +47,7 @@
     "coffee-script": "~1.6.3",
     "projectz": "~0.2.7"
   },
-  "main": "out/lib/pointers.js",
+  "main": "./out/lib/pointer.js",
   "scripts": {
     "test": "echo \"no tests yet\""
   }

@@ -41,8 +41,88 @@ Point a model or collection to a view. Respects garbage collection and bottom-up
 
 ## Usage
 
-@TODO
+``` coffeescript
+# Import
+{Pointer} = require('pointers')
+MiniView = require('miniview').View
 
+# Extend MiniView
+class View extends MiniView
+	point: (args...) ->
+		pointer = new Pointer(args...)
+		(@pointers ?= []).push(pointer)
+		return pointer
+
+	destroy: ->
+		pointer.destroy()  for pointer in @pointers  if @pointers
+		@pointers = null
+		return super
+
+	navigate: (args...) ->
+		return Route.navigate.apply(Route, args)
+
+# List Item View
+class ListItemView
+	el: """
+		<li class="list-item-view">
+			<span class="field-title"></span>
+			<span class="field-date"></span>
+		</li>
+		"""
+
+	elements:
+		'.field-title': '$title'
+		'.field-date': '$date'
+
+	render: ->
+		# Bind the model's title (fallback to name) attribute, to the $title element
+		@point(@item).attributes('title', 'name').to(@$title).bind()
+
+		# Bind the model's date attribute, to the $date element, with a custom setter
+		@point(@item).attributes('title', 'name').to(@$title)
+			.using ($el, model, value) ->
+				$el.text value?.toLocaleDateString()
+			.bind()
+
+		# Chain
+		@
+
+# List View
+class ListView
+	el: """
+		<div class="list-view">
+			<ul class="items"></ul>
+		</div>
+		"""
+
+	elements:
+		'ul.items': '$items'
+
+	render: ->
+		# Bind the collection, using the ListItemView, to the $items element
+		@point(@item).view(ListItemView).to(@$items).bind()
+
+		# Chain
+		@
+
+# Edit View
+class EditView
+	el: """
+		<li class="edit-view">
+			<input type="text" class="field-title"></input>
+		</li>
+		"""
+
+	elements:
+		'.field-title :input': '$title'
+
+	render: ->
+		# Bind the model's title (fallback to name) attribute to the $title element, with a two way-sync
+		@point(@item).attributes('title', 'name').to(@$title).update().bind()
+
+		# Chain
+		@
+```
 
 
 <!-- HISTORY/ -->
@@ -82,8 +162,11 @@ No sponsors yet! Will you be the first?
 
 ### Contributors
 
-No contributors yet! Will you be the first?
-[Discover how you can contribute by heading on over to the `Contributing.md` file.](https://github.com/bevry/pointers/blob/master/Contributing.md#files)
+These amazing people have contributed code to this project:
+
+- Benjamin Lupton <b@lupton.cc> (https://github.com/balupton) - [view contributions](https://github.com/bevry/pointers/commits?author=balupton)
+
+[Become a contributor!](https://github.com/bevry/pointers/blob/master/Contributing.md#files)
 
 <!-- /BACKERS -->
 

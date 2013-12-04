@@ -1,7 +1,4 @@
-# =====================================
-## Pointers
-
-$ = @$ or (try require?('jquery'))
+$ = @$ or window?.$ or (try require?('jquery'))
 extendr = require('extendr')
 
 class Pointer
@@ -41,11 +38,11 @@ class Pointer
 				if @config.update is true
 					@config.element.on('change', @updateHandler)
 
-			if @config.Controller
-				@createControllerViaModel(@config.item)
+			if @config.View
+				@createViewViaModel(@config.item)
 
 		else
-			if @config.Controller
+			if @config.View
 				@config.handler ?= @defaultCollectionHandler
 				@config.element.off('change', @updateHandler)
 				@config.item
@@ -72,7 +69,7 @@ class Pointer
 
 		@config.element.children().each ->
 			$el = $(@)
-			$el.data('controller')?.destroy()
+			$el.data('view')?.destroy()
 
 		@
 
@@ -113,43 +110,43 @@ class Pointer
 			$el.text(value)
 		return true
 
-	createControllerViaModel: (model) =>
+	createViewViaModel: (model) =>
 		model ?= @config.item
 
-		controller = new @config.Controller(item: model)
+		view = new @config.View(item: model)
 
-		controller.$el
-			.data('controller', controller)
+		view.$el
+			.data('view', view)
 			.data('model', model)
 			.addClass("model-#{model.cid}")
 
-		controller
+		view
 			.render()
 			.$el.appendTo(@config.element)
 
-		return controller
+		return view
 
-	destroyControllerViaElement: (element) =>
+	destroyViewViaElement: (element) =>
 		$el = element
-		$el.data('controller')?.destroy()
+		$el.data('view')?.destroy()
 		@
 
 	defaultCollectionHandler: (opts) =>
 		{model, event, collection} = opts
 		switch event
 			when 'add'
-				@createControllerViaModel(model)
+				@createViewViaModel(model)
 
 			when 'remove'
 				$el = @getModelElement(model)
-				@destroyControllerViaElement($el)
+				@destroyViewViaElement($el)
 
 			when 'reset'
 				@config.element.children().each =>
-					@destroyControllerViaElement $(@)
+					@destroyViewViaElement $(@)
 
 				for model in collection.models
-					@createControllerViaModel(model)
+					@createViewViaModel(model)
 
 		return true
 
@@ -162,13 +159,13 @@ class Pointer
 
 	getModelElement: (model) =>
 		return @config.element.find(".model-#{model.cid}:first") ? null
-	getModelController: (model) =>
-		return @getModelElement(model)?.data('controller') ? null
+	getModelView: (model) =>
+		return @getModelElement(model)?.data('view') ? null
 
 	getElement: =>
 		return @getModelElement(@config.item)
-	getController: =>
-		return @getElement().data('controller')
+	getView: =>
+		return @getElement().data('view')
 
 	update: ->
 		update = true
@@ -179,8 +176,8 @@ class Pointer
 		@setConfig({attributes})
 		@
 
-	controller: (Controller) ->
-		@setConfig({Controller})
+	view: (View) ->
+		@setConfig({View})
 		@
 
 	using: (handler) ->
