@@ -1,0 +1,52 @@
+{
+  "title": "Pointers",
+  "name": "pointers",
+  "version": "1.0.0",
+  "description": "Point a model or collection to a view. Respects garbage collection and bottom-up rendering. Reactive.",
+  "license": {
+    "type": "MIT"
+  },
+  "badges": {
+    "travis": true,
+    "npm": true,
+    "gittip": "bevry",
+    "flattr": "344188/balupton-on-Flattr",
+    "paypal": "QB8GQPZAH84N6"
+  },
+  "keywords": [
+    "view",
+    "controller",
+    "binding",
+    "react",
+    "reactive",
+    "live",
+    "templating",
+    "templates",
+    "template",
+    "engine"
+  ],
+  "author": "2013+ Bevry Pty Ltd <us@bevry.me> (http://bevry.me)",
+  "maintainers": [
+    "Benjamin Lupton <b@lupton.cc> (https://github.com/balupton)"
+  ],
+  "contributors": [],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bevry/pointers.git"
+  },
+  "bugs": {
+    "url": "https://github.com/bevry/pointers/issues"
+  },
+  "homepage": "https://github.com/bevry/pointers",
+  "dependencies": {
+    "extendr": "~2.1.0"
+  },
+  "devDependencies": {
+    "coffee-script": "~1.6.3",
+    "projectz": "~0.2.7"
+  },
+  "main": "out/lib/pointers.js",
+  "scripts": {
+    "test": "echo \"no tests yet\""
+  }
+}
