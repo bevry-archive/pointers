@@ -1,4 +1,3 @@
-
 <!-- TITLE/ -->
 
 # Pointers
@@ -62,7 +61,7 @@ class View extends MiniView
 		return Route.navigate.apply(Route, args)
 
 # List Item View
-class ListItemView
+class ListItemView extends View
 	el: """
 		<li class="list-item-view">
 			<span class="field-title"></span>
@@ -88,7 +87,7 @@ class ListItemView
 		@
 
 # List View
-class ListView
+class ListView extends View
 	el: """
 		<div class="list-view">
 			<ul class="items"></ul>
@@ -106,11 +105,13 @@ class ListView
 		@
 
 # Edit View
-class EditView
+class EditView extends View
 	el: """
-		<li class="edit-view">
-			<input type="text" class="field-title"></input>
-		</li>
+		<div class="edit-view">
+			<form>
+				<input type="text" class="field-title"></input>
+			</form>
+		</div>
 		"""
 
 	elements:
