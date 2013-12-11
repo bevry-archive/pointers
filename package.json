@@ -2,7 +2,7 @@
   "title": "Pointers",
   "name": "pointers",
   "version": "1.1.0",
-  "description": "Point a model or collection to a view. Respects garbage collection and bottom-up rendering. Reactive.",
+  "description": "Syncs a model/collection with an element. Supports two-way syncs. Respects garbage collection and bottom-up rendering. Reactive.",
   "license": {
     "type": "MIT"
   },
