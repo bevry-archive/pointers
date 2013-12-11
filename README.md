@@ -44,17 +44,17 @@ Element Sync comes in handy when you want to keep an element up to date with a m
 
 There are three ways you can keep sync a model or collection to an element:
 
-1. You can keep an element's text or value up to date with the value of a model's attributes
-	1. Uses the `element` `item`, and `itemAttributes` configuration options
-2. You can keep an element up to date with a view bound to the model
-	1. Uses the `element`, and `item` configuration options
-3. You can keep an element up to date with views for each model in a collection
-	1. Uses the `element`, `item`, and `viewClass` configuration options
+- You can keep an element's text or value up to date with the value of a model's attributes
+	- Uses the `element` `item`, and `itemAttributes` configuration options
+- You can keep an element up to date with a view bound to the model
+	- Uses the `element`, and `item` configuration options
+- You can keep an element up to date with views for each model in a collection
+	- Uses the `element`, `item`, and `viewClass` configuration options
 
 And there is one way you can sync an element to a model or collection:
 
-1. You can keep a model's attributes value up to date with an element's value or text
-	1. Uses the `element`, `item`, `itemAttributes`, and `itemSetter` configuration options
+- You can keep a model's attributes value up to date with an element's value or text
+	- Uses the `element`, `item`, `itemAttributes`, and `itemSetter` configuration options
 
 The only differences between these methods, are what configuration options are sent to the pointer. The available configuration options are:
 
