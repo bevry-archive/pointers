@@ -77,7 +77,7 @@ new Pointer({
 	element: null,
 	elementSetter: null,
 	itemSetter: null
-}),bind()
+}).bind()
 ```
 
 
