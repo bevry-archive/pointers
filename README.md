@@ -19,7 +19,7 @@
 
 <!-- DESCRIPTION/ -->
 
-Point a model or collection to a view. Respects garbage collection and bottom-up rendering. Reactive.
+Syncs a model/collection with an element. Supports two-way syncs. Respects garbage collection and bottom-up rendering. Reactive.
 
 <!-- /DESCRIPTION -->
 
@@ -40,6 +40,94 @@ Point a model or collection to a view. Respects garbage collection and bottom-up
 
 
 ## Usage
+
+Element Sync comes in handy when you want to keep an element up to date with a model or collection, or a model up to date with the value of an element, or both.
+
+There are three ways you can keep sync a model or collection to an element:
+
+1. You can keep an element's text or value up to date with the value of a model's attributes
+	1. Uses the `element` `item`, and `itemAttributes` configuration options
+2. You can keep an element up to date with a view bound to the model
+	1. Uses the `element`, and `item` configuration options
+3. You can keep an element up to date with views for each model in a collection
+	1. Uses the `element`, `item`, and `viewClass` configuration options
+
+And there is one way you can sync an element to a model or collection:
+
+1. You can keep a model's attributes value up to date with an element's value or text
+	1. Uses the `element`, `item`, `itemAttributes`, and `itemSetter` configuration options
+
+The only differences between these methods, are what configuration options are sent to the pointer. The available configuration options are:
+
+- `item` — the model or collection that we want to sync with the element, e.g. `new Backbone.Model()`
+- `itemAttributes` — when syncing a model's attributes to an element, this is an array of the attributes that we want to sync to the element's value, e.g. `['title', 'name', 'path']`
+- `viewClass` — when syncing a model or collection directly to an element, this is the view class that be instantiated for the model, or for each of the collection's models
+- `element` — the element to our collection, model, or specified model's attributes to
+- `elementSetter` — when syncing a model's attributes to an element, this is either `true` to use the default setter that will update the element's value or text, or can be a custom function that accepts an object of `$el` the element, `item` the item this pointer is for, `value` the model value that just changed
+-  `itemSetter` — when syncing an element's value to a model's attribute, this is either `false` to disable this ability (the default), `true` to use the default setter (just a plain set of the first specified itemAttribute using the element's latest value), or a function that accepts an object of `$el` the element, `item` the item this pointer is for, `value` the element value that just changed
+
+Knowing all this, you create a pointer like so:
+
+``` javascript
+var Pointer = require('pointers').Pointer;
+
+new Pointer({
+	item: null,
+	itemAttributes: null,
+	viewClass: null,
+	element: null,
+	elementSetter: null,
+	itemSetter: null
+}),bind()
+```
+
+
+## Compatibility
+
+### Elements
+
+Pointers are compatible out of the box with both jQuery and Zepto, and whatever else that implements the API:
+
+- `$el = $(domElement)`
+- `$el.data('property')`, `$el.data('property', value)`
+- `$el.addClass('className')`
+- `$el.appendTo($anotherEl)`
+- `$el.find('sizzle selector')`
+- `$el.children()`
+- `$el.each(function(){})`
+- `$el.is('sizzle selector')`
+- `$el.val('value')`
+- `$el.text('html that will be escaped to text')`
+- `$el.on('change', function(event){})`
+
+### Views
+
+Pointers are compatible out of the box with MiniView, or whatever else that implements the API:
+
+- `new viewClass({item: item, model:item})` — the constructor of the view class should either accept the model via the `item` or `model` configuration options
+- `view.destroy()` — a method to remove the element from the DOM, and clean up the view from memory
+- `view.$el` — exposes the element that the view is for
+
+Which can be easily accomplish with Backbone.js Views and SpineMVC Controllers.
+
+### Models
+
+Pointers are compatible out of the box with Backbone Models, and whatever else that implements the API:
+
+- `model.set({name: "Benjamin Lupton"})` — updates the attributes on the model
+- `model.on('change:name', function(theSameModel, theNewValue, someOptions){})`
+
+### Collections
+
+Pointers are compatible out of the box with Backbone Collections, and whatever else that implements the API:
+
+- `collection.on('add', function(addedModel, theSameCollection, someOptions){})`
+- `collection.on('remove', function(removedModel, theSameCollection, someOptions){})`
+- `collection.on('reset', function(theSameCollection, someOptions){})`
+
+
+
+## Tying it all together
 
 ``` coffeescript
 # Import
@@ -76,13 +164,12 @@ class ListItemView
 
 	render: ->
 		# Bind the model's title (fallback to name) attribute, to the $title element
-		@point(@item).attributes('title', 'name').to(@$title).bind()
+		@point(item:@item, itemAttributes:['title', 'name'], element:@$title).bind()
 
 		# Bind the model's date attribute, to the $date element, with a custom setter
-		@point(@item).attributes('title', 'name').to(@$title)
-			.using ($el, model, value) ->
-				$el.text value?.toLocaleDateString()
-			.bind()
+		@point(item:@item, itemAttributes:['title', 'name'], element:@$title, itemSetter: ({$el, item, value}) ->
+			$el.text value?.toLocaleDateString()
+		).bind()
 
 		# Chain
 		@
@@ -100,7 +187,7 @@ class ListView
 
 	render: ->
 		# Bind the collection, using the ListItemView, to the $items element
-		@point(@item).view(ListItemView).to(@$items).bind()
+		@point(item:@item, viewClass:ListItemView, element:@$items).bind()
 
 		# Chain
 		@
@@ -118,7 +205,7 @@ class EditView
 
 	render: ->
 		# Bind the model's title (fallback to name) attribute to the $title element, with a two way-sync
-		@point(@item).attributes('title', 'name').to(@$title).update().bind()
+		@point(item:@item, itemAttributes:['title', 'name'], element:@$title, itemSetter:true).bind()
 
 		# Chain
 		@

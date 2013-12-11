@@ -4,116 +4,196 @@ extendr = require('extendr')
 class Pointer
 	config: null
 	bound: false
-	bindTimeout: null
 
-	constructor: (item) ->
-		@config ?= {}
+	constructor: (config) ->
+		@elementChangeValueHandler = @elementChangeValueHandler.bind(@)
+		@collectionAddHandler = @collectionAddHandler.bind(@)
+		@collectionRemoveHandler = @collectionRemoveHandler.bind(@)
+		@collectionResetHandler = @collectionResetHandler.bind(@)
+		@modelChangeAttributeHandler = @modelChangeAttributeHandler.bind(@)
 
-		type = if item.length? then 'collection' else 'model'
+		@config = extendr.extend({}, {
+			item: null
+			itemAttributes: null
 
-		@setConfig(
-			type: type
-			item: item
-		)
+			viewClass: null
 
-		@bindTimeout = setTimeout(@bind, 0)
+			element: null
+			elementSetter: true
+
+			itemSetter: false
+		}, config)
 
 		@
 
-	bind: =>
-		(clearTimeout(@bindTimeout); @bindTimeout = null)  if @bindTimeout
+	get: (attr) -> @config[attr]
+
+	getConfig: -> @config
+
+	setConfig: (config) ->
+		(@config[key] = value)  for own key,value of config  if config
+		@
+
+	getItemType: -> if @get('item').length? then 'collection' else 'model'
+
+	bind: ->
 		return @  if @bound is true
 		@bound = true
 
-		@config.element.data('pointer')?.destroy()
-		@config.element.data('pointer', @)
+		item = @get('item')
+		$el = @get('element')
+
+		$el.data('pointer')?.destroy()
+		$el.data('pointer', @)
 
 		@unbind()
 
-		if @config.type is 'model'
-			if @config.attributes
-				@config.handler ?= @defaultModelHandler
-				@config.item.on('change:'+attribute, @changeAttributeHandler)  for attribute in @config.attributes
-				@changeAttributeHandler(@config.model, null, {})
-				if @config.update is true
-					@config.element.on('change', @updateHandler)
+		if @getItemType() is 'model'
 
-			if @config.View
-				@createViewViaModel(@config.item)
+			if itemAttributes = @get('itemAttributes')
+				item.on('change:'+attribute, @modelChangeAttributeHandler)  for attribute in itemAttributes
+				@modelChangeAttributeHandler(item, null, {})
+				$el.on('change', @elementChangeValueHandler)  if @get('itemSetter') is true
+
+			else if @get('viewClass')
+				@createViewViaModel(item)
 
 		else
-			if @config.View
-				@config.handler ?= @defaultCollectionHandler
-				@config.element.off('change', @updateHandler)
-				@config.item
-					.on('add',    @addHandler)
-					.on('remove', @removeHandler)
-					.on('reset',  @resetHandler)
-				@resetHandler(@config.item.models, @config.item, {})
+			item
+				.on('add',    @collectionAddHandler)
+				.on('remove', @collectionRemoveHandler)
+				.on('reset',  @collectionResetHandler)
+
+			@collectionResetHandler(item.models, item, {})
+
+		# Chain
 		@
 
-	unbind: =>
-		(clearTimeout(@bindTimeout); @bindTimeout = null)  if @bindTimeout
+	unbind: ->
 		return @  if @bound is false
 		@bound = false
 
-		@config.item.off('change:'+attribute, @changeAttributeHandler)  for attribute in @config.attributes  if @config.attributes
-		@config.item
-			.off('add',    @addHandler)
-			.off('remove', @removeHandler)
-			.off('reset',  @resetHandler)
+		item = @get('item')
+		itemAttributes = @get('itemAttributes')
+
+		item.off('change:'+attribute, @modelChangeAttributeHandler)  for attribute in itemAttributes  if itemAttributes
+		item
+			.off('add',    @collectionAddHandler)
+			.off('remove', @collectionRemoveHandler)
+			.off('reset',  @collectionResetHandler)
+
 		@
 
-	destroy: (opts) =>
+	destroy: (opts) ->
 		@unbind()
 
-		@config.element.children().each ->
-			$el = $(@)
-			$el.data('view')?.destroy()
+		$el = @get('element')
+		$el.children().each ->
+			$child = $(@)
+			$child.data('view')?.destroy()
 
 		@
 
-	setConfig: (config={}) ->
-		for own key,value of config
-			@config[key] = value
-		@
+	elementChangeValueHandler: (event) ->
+		setter = @getSetter('itemSetter', @defaultModelSetterFromElement)
+		if setter
+			@prepareEventOptions(event)
+			return setter(opts)
+		else
+			return true
 
+	collectionAddHandler: (model, collection, opts) ->
+		setter = @getSetter('elementSetter', @defaultElementSetterFromCollection)
+		if setter
+			@prepareEventOptions extendr.extend(opts, {event:'add', model, collection})
+			return setter(opts)
+		else
+			return true
 
-	updateHandler: (e) =>
+	collectionRemoveHandler: (model, collection, opts) ->
+		setter = @getSetter('elementSetter', @defaultElementSetterFromCollection)
+		if setter
+			@prepareEventOptions extendr.extend(opts, {event:'remove', model, collection})
+			return setter(opts)
+		else
+			return true
+
+	collectionResetHandler: (collection, opts) ->
+		setter = @getSetter('elementSetter', @defaultElementSetterFromCollection)
+		if setter
+			@prepareEventOptions extendr.extend(opts, {event:'reset', collection})
+			return setter(opts)
+		else
+			return true
+
+	modelChangeAttributeHandler: (model, value, opts) ->
+		setter = @getSetter('elementSetter', @defaultElementSetterFromModel)
+		if setter
+			value ?= @getFirstExistingAttributeValue()
+			@prepareEventOptions extendr.extend(opts, {event:'change', model, value})
+			return setter(opts)
+		else
+			return true
+
+	getSetter: (name, defaultSetter) ->
+		setter = @get(name)
+		setter = defaultSetter.bind(@)  if setter is true
+		return setter or null
+
+	prepareEventOptions: (opts) ->
+		opts.$el = @get('element')
+		opts[@getItemType()] = opts.item = @get('item')
+		return opts
+
+	defaultModelSetterFromElement: (opts) ->
+		model = opts.item
+		element = opts.element
+		primaryItemAttribute = @get('itemAttributes')[0]
+		value = element.val()
+
 		attrs = {}
-		attrs[@config.attributes[0]] = @config.element.val()
-		@config.item.set(attrs)
-		@
+		attrs[primaryItemAttribute] = value
+		model.set(attrs)
 
-	addHandler: (model, collection, opts) =>
-		@callUserHandler extendr.extend(opts, {event:'add', model, collection})
-	removeHandler: (model, collection, opts) =>
-		@callUserHandler extendr.extend(opts, {event:'remove', model, collection})
-	resetHandler: (collection, opts) =>
-		@callUserHandler extendr.extend(opts, {event:'reset', collection})
-	changeAttributeHandler: (model, value, opts) =>
-		value ?= @fallbackValue()
-		@callUserHandler extendr.extend(opts, {event:'change', model, value})
-
-	callUserHandler: (opts) =>
-		opts.$el = @config.element
-		opts[@config.type] = @config.item
-		opts.item = @config.item
-		@config.handler(opts)
 		return true
 
-	defaultModelHandler: ({$el, value}) =>
-		value ?= @fallbackValue()
+	defaultElementSetterFromModel: ({$el, value}) ->
+		value ?= @getFirstExistingAttributeValue()
+
 		if $el.is(':input')
 			$el.val(value)
 		else
 			$el.text(value)
+
 		return true
 
-	createViewViaModel: (model) =>
-		model ?= @config.item
+	defaultElementSetterFromCollection: (opts) ->
+		pointer = @
+		{model, event, collection} = opts
 
-		view = new @config.View(item: model)
+		switch event
+			when 'add'
+				@createViewViaModel(model)
+
+			when 'remove'
+				$el = @getElementViaModel(model)
+				@destroyViewViaElement($el)
+
+			when 'reset'
+				@get('element').children().each ->
+					pointer.destroyViewViaElement $(@)
+
+				for model in collection.models
+					@createViewViaModel(model)
+
+		return true
+
+	createViewViaModel: (model) ->
+		model ?= @get('item')
+		viewClass = @get('viewClass')
+		$el = @get('element')
+
+		view = new viewClass(item:model, model:model)
 
 		view.$el
 			.data('view', view)
@@ -122,71 +202,40 @@ class Pointer
 
 		view
 			.render()
-			.$el.appendTo(@config.element)
+			.$el.appendTo($el)
 
 		return view
 
-	destroyViewViaElement: (element) =>
-		$el = element
+	destroyViewViaElement: ($el) ->
 		$el.data('view')?.destroy()
+
+		# Chain
 		@
 
-	defaultCollectionHandler: (opts) =>
-		{model, event, collection} = opts
-		switch event
-			when 'add'
-				@createViewViaModel(model)
-
-			when 'remove'
-				$el = @getModelElement(model)
-				@destroyViewViaElement($el)
-
-			when 'reset'
-				@config.element.children().each =>
-					@destroyViewViaElement $(@)
-
-				for model in collection.models
-					@createViewViaModel(model)
-
-		return true
-
-	fallbackValue: ->
+	getFirstExistingAttributeValue: ->
+		item = @get('item')
+		itemAttributes = @get('itemAttributes')
 		value = null
-		for attribute in @config.attributes
-			if (value = @config.item.get(attribute))
+
+		for attribute in itemAttributes
+			if (value = item.get(attribute))
 				break
+
 		return value
 
-	getModelElement: (model) =>
-		return @config.element.find(".model-#{model.cid}:first") ? null
-	getModelView: (model) =>
-		return @getModelElement(model)?.data('view') ? null
+	getElementViaModel: (model) ->
+		model ?= @get('item')
+		$el = @get('element')
+		return $el.find(".model-#{model.cid}:first") ? null
 
-	getElement: =>
-		return @getModelElement(@config.item)
-	getView: =>
-		return @getElement().data('view')
+	getViewViaModel: (model) ->
+		$el = @getElementViaModel(model)
+		return $el?.data('view') ? null
 
-	update: ->
-		update = true
-		@setConfig({update})
-		@
+	# Public
+	getElement: -> @getElementViaModel()
+	getView: -> @getElement().data('view')
 
-	attributes: (attributes...) ->
-		@setConfig({attributes})
-		@
-
-	view: (View) ->
-		@setConfig({View})
-		@
-
-	using: (handler) ->
-		@setConfig({handler})
-		@
-
-	to: (element) ->
-		@setConfig({element})
-		@
 
 # Exports
 module.exports = {Pointer}
