@@ -113,17 +113,20 @@ Which can be easily accomplish with Backbone.js Views and SpineMVC Controllers.
 
 Pointers are compatible out of the box with Backbone Models, and whatever else that implements the API:
 
+- `model.get('name')` — get an attribute value
 - `model.set({name: "Benjamin Lupton"})` — updates the attributes on the model
 - `model.on('change:name', function(theSameModel, theNewValue, someOptions){})`
+- `model.off('event', listenerFunction)`
 
 ### Collections
 
 Pointers are compatible out of the box with Backbone Collections, and whatever else that implements the API:
 
+- `collections.models` — an array of model instances
 - `collection.on('add', function(addedModel, theSameCollection, someOptions){})`
 - `collection.on('remove', function(removedModel, theSameCollection, someOptions){})`
 - `collection.on('reset', function(theSameCollection, someOptions){})`
-
+- `model.off('event', listenerFunction)`
 
 
 ## Tying it all together
