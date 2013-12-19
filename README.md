@@ -144,9 +144,6 @@ class View extends MiniView
 		@pointers = null
 		return super
 
-	navigate: (args...) ->
-		return Route.navigate.apply(Route, args)
-
 # List Item View
 class ListItemView extends View
 	el: """
