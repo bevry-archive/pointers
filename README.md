@@ -27,13 +27,9 @@ Syncs a model/collection with an element. Supports two-way syncs. Respects garba
 
 ## Install
 
-### [Node](http://nodejs.org/), [Browserify](http://browserify.org/)
+### [Node](http://nodejs.org/)
 - Use: `require('pointers')`
 - Install: `npm install --save pointers`
-
-### [Ender](http://ender.jit.su/)
-- Use: `require('pointers')`
-- Install: `ender add pointers`
 
 <!-- /INSTALL -->
 
@@ -219,7 +215,7 @@ class EditView extends View
 <!-- HISTORY/ -->
 
 ## History
-[Discover the change history by heading on over to the `History.md` file.](https://github.com/bevry/pointers/blob/master/History.md#files)
+[Discover the change history by heading on over to the `HISTORY.md` file.](https://github.com/bevry/pointers/blob/master/HISTORY.md#files)
 
 <!-- /HISTORY -->
 
@@ -228,7 +224,7 @@ class EditView extends View
 
 ## Contribute
 
-[Discover how you can contribute by heading on over to the `Contributing.md` file.](https://github.com/bevry/pointers/blob/master/Contributing.md#files)
+[Discover how you can contribute by heading on over to the `CONTRIBUTING.md` file.](https://github.com/bevry/pointers/blob/master/CONTRIBUTING.md#files)
 
 <!-- /CONTRIBUTE -->
 
@@ -255,9 +251,9 @@ No sponsors yet! Will you be the first?
 
 These amazing people have contributed code to this project:
 
-- Benjamin Lupton <b@lupton.cc> (https://github.com/balupton) - [view contributions](https://github.com/bevry/pointers/commits?author=balupton)
+- [Benjamin Lupton](https://github.com/balupton) <b@lupton.cc> — [view contributions](https://github.com/bevry/pointers/commits?author=balupton)
 
-[Become a contributor!](https://github.com/bevry/pointers/blob/master/Contributing.md#files)
+[Become a contributor!](https://github.com/bevry/pointers/blob/master/CONTRIBUTING.md#files)
 
 <!-- /BACKERS -->
 

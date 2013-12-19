@@ -94,10 +94,12 @@ class Pointer
 
 		@
 
-	elementChangeValueHandler: (event) ->
+	# Fired by the jQuery Event Listener on the "change" event of the element
+	# opts = jQuery Event Object
+	elementChangeValueHandler: (opts) ->
 		setter = @getSetter('itemSetter', @defaultModelSetterFromElement)
 		if setter
-			@prepareEventOptions(event)
+			@prepareEventOptions(opts)
 			return setter(opts)
 		else
 			return true
@@ -141,7 +143,7 @@ class Pointer
 		return setter or null
 
 	prepareEventOptions: (opts) ->
-		opts.$el = @get('element')
+		opts.$el = opts.element = @get('element')
 		opts[@getItemType()] = opts.item = @get('item')
 		return opts
 
@@ -157,33 +159,32 @@ class Pointer
 
 		return true
 
-	defaultElementSetterFromModel: ({$el, value}) ->
-		value ?= @getFirstExistingAttributeValue()
+	defaultElementSetterFromModel: (opts) ->
+		opts.value ?= @getFirstExistingAttributeValue()
 
-		if $el.is(':input')
-			$el.val(value)
+		if opts.$el.is(':input')
+			opts.$el.val(opts.value)
 		else
-			$el.text(value)
+			opts.$el.text(opts.value)
 
 		return true
 
 	defaultElementSetterFromCollection: (opts) ->
 		pointer = @
-		{model, event, collection} = opts
 
 		switch event
 			when 'add'
-				@createViewViaModel(model)
+				@createViewViaModel(opts.model)
 
 			when 'remove'
-				$el = @getElementViaModel(model)
+				$el = @getElementViaModel(opts.model)
 				@destroyViewViaElement($el)
 
 			when 'reset'
 				@get('element').children().each ->
 					pointer.destroyViewViaElement $(@)
 
-				for model in collection.models
+				for model in opts.collection.models
 					@createViewViaModel(model)
 
 		return true
