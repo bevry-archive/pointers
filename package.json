@@ -1,7 +1,7 @@
 {
   "title": "Pointers",
   "name": "pointers",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "Syncs a model/collection with an element. Supports two-way syncs. Respects garbage collection and bottom-up rendering. Reactive.",
   "license": {
     "type": "MIT"
@@ -26,6 +26,9 @@
     "engine"
   ],
   "browsers": true,
+  "browser": {
+    "jquery": false
+  },
   "author": "2013+ Bevry Pty Ltd <us@bevry.me> (http://bevry.me)",
   "maintainers": [
     "Benjamin Lupton <b@lupton.cc> (https://github.com/balupton)"
@@ -42,7 +45,8 @@
   },
   "homepage": "https://github.com/bevry/pointers",
   "dependencies": {
-    "extendr": "~2.1.0"
+    "extendr": "~2.1.0",
+    "extendonclass": "~1.0.0"
   },
   "devDependencies": {
     "coffee-script": "~1.6.3",

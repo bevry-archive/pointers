@@ -1,7 +1,10 @@
 $ = @$ or window?.$ or (try require?('jquery'))
 extendr = require('extendr')
+{extendOnClass} = require('extendonclass')
 
 class Pointer
+	@extend: extendOnClass
+
 	config: null
 	bound: false
 

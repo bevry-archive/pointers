@@ -34,7 +34,7 @@ Syncs a model/collection with an element. Supports two-way syncs. Respects garba
 ### [Browserify](http://browserify.org/)
 - Use: `require('pointers')`
 - Install: `npm install --save pointers`
-- CDN URL: `//wzrd.in/bundle/pointers@1.1.1`
+- CDN URL: `//wzrd.in/bundle/pointers@1.1.2`
 
 ### [Ender](http://ender.jit.su/)
 - Use: `require('pointers')`
