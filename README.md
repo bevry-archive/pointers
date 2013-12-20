@@ -43,6 +43,11 @@ Syncs a model/collection with an element. Supports two-way syncs. Respects garba
 <!-- /INSTALL -->
 
 
+## Demo
+
+[View the interactive JSFiddle](http://jsfiddle.net/balupton/KBGw3/)
+
+
 ## Usage
 
 Element Sync comes in handy when you want to keep an element up to date with a model or collection, or a model up to date with the value of an element, or both.
@@ -133,89 +138,6 @@ Pointers are compatible out of the box with Backbone Collections, and whatever e
 - `collection.on('reset', function(theSameCollection, someOptions){})`
 - `model.off('event', listenerFunction)`
 
-
-## Tying it all together
-
-``` coffeescript
-# Import
-{Pointer} = require('pointers')
-MiniView = require('miniview').View
-
-# Extend MiniView
-class View extends MiniView
-	point: (args...) ->
-		pointer = new Pointer(args...)
-		(@pointers ?= []).push(pointer)
-		return pointer
-
-	destroy: ->
-		pointer.destroy()  for pointer in @pointers  if @pointers
-		@pointers = null
-		return super
-
-# List Item View
-class ListItemView extends View
-	el: """
-		<li class="list-item-view">
-			<span class="field-title"></span>
-			<span class="field-date"></span>
-		</li>
-		"""
-
-	elements:
-		'.field-title': '$title'
-		'.field-date': '$date'
-
-	render: ->
-		# Bind the model's title (fallback to name) attribute, to the $title element
-		@point(item:@item, itemAttributes:['title', 'name'], element:@$title).bind()
-
-		# Bind the model's date attribute, to the $date element, with a custom setter
-		@point(item:@item, itemAttributes:['title', 'name'], element:@$title, itemSetter: ({$el, item, value}) ->
-			$el.text value?.toLocaleDateString()
-		).bind()
-
-		# Chain
-		@
-
-# List View
-class ListView extends View
-	el: """
-		<div class="list-view">
-			<ul class="items"></ul>
-		</div>
-		"""
-
-	elements:
-		'ul.items': '$items'
-
-	render: ->
-		# Bind the collection, using the ListItemView, to the $items element
-		@point(item:@item, viewClass:ListItemView, element:@$items).bind()
-
-		# Chain
-		@
-
-# Edit View
-class EditView extends View
-	el: """
-		<div class="edit-view">
-			<form>
-				<input type="text" class="field-title"></input>
-			</form>
-		</div>
-		"""
-
-	elements:
-		'.field-title :input': '$title'
-
-	render: ->
-		# Bind the model's title (fallback to name) attribute to the $title element, with a two way-sync
-		@point(item:@item, itemAttributes:['title', 'name'], element:@$title, itemSetter:true).bind()
-
-		# Chain
-		@
-```
 
 
 <!-- HISTORY/ -->
