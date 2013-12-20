@@ -31,6 +31,15 @@ Syncs a model/collection with an element. Supports two-way syncs. Respects garba
 - Use: `require('pointers')`
 - Install: `npm install --save pointers`
 
+### [Browserify](http://browserify.org/)
+- Use: `require('pointers')`
+- Install: `npm install --save pointers`
+- CDN URL: `//wzrd.in/bundle/pointers@1.1.1`
+
+### [Ender](http://ender.jit.su/)
+- Use: `require('pointers')`
+- Install: `ender add pointers`
+
 <!-- /INSTALL -->
 
 
