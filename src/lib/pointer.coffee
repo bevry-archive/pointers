@@ -175,7 +175,7 @@ class Pointer
 	defaultElementSetterFromCollection: (opts) ->
 		pointer = @
 
-		switch event
+		switch opts.event
 			when 'add'
 				@createViewViaModel(opts.model)
 
